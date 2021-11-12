@@ -1,4 +1,7 @@
 #include <bits/stdc++.h>
+#define maxInputLetters 100
+#define maxInputTerms 16
+
 using namespace std;
 
 int main()
@@ -7,32 +10,31 @@ int main()
     // cout.tie(NULL);
     // cin.tie(NULL);
     cout << "Your literals are A, B, C and D capital or small letters (you can mix in between) in addition to these letters you only can enter the plus sign \"+\" and the apostrophe sign to negate the literal (e.g., A' or b') \n";
-    int maxInputLetters = 100, maxInputTerms = 16;
+    int flag = 0; // General Purpose flag
     char arr[maxInputLetters] = "", terms[maxInputTerms][8] = {};
     cin >> arr;
 
     // divide into terms
-    int i = 0;
-    int termsIndex = 0;
-    while (arr[i] != '\0')
+    int lastTermIndex = 0;
+    for (int i = 0; arr[i] != '\0'; i++, lastTermIndex++)
     {
-        int j = 0;
-        while (!(arr[i] == '+' || arr[i] == '\0'))
+        for (int j = 0; !(arr[i] == '+' || arr[i] == '\0'); j++)
         {
-            terms[termsIndex][j] = arr[i];
-            i++;
-            j++;
+            terms[lastTermIndex][j] = arr[i];
+            i++; // bypass the + sign
+            if ((arr[i] != '+' || arr[i] != '\'' || arr[i] != 'a' || arr[i] != 'b' || arr[i] != 'c' || arr[i] != 'd' || arr[i] != 'A' || arr[i] != 'B' || arr[i] != 'C' || arr[i] != 'D'))
+            {
+                cout << "Wrong input" << endl;
+                return -1;
+            }
         }
-        termsIndex++;
-        i++;
     }
-    // termsIndex--;
 
-    // calc num of lit of each term
+    // calc the num of the lit of each term
     int numOfLiterals[maxInputTerms] = {0};
-    for (int i = 0; i < termsIndex + 1; i++)
+    for (int i = 0; i < lastTermIndex; i++)
     {
-        int flag = 0;
+        flag = 0;
         for (int j = 0; terms[i][j] != '\0'; j++)
         {
             if (terms[i][j] != '\'')
@@ -42,93 +44,89 @@ int main()
     }
 
     // calc the binary of each term
-    int termsValue[maxInputTerms][4];
+    // initiate the termsBinaryValue array with -1 to be like {{-1, -1, -1, -1},...}
+    int termsBinaryValue[maxInputTerms][4];
     for (int i = 0; i < maxInputTerms; i++)
     {
         for (int j = 0; j < 4; j++)
-            termsValue[i][j] = -1;
+            termsBinaryValue[i][j] = -1;
     }
-    for (int i = 0; i < termsIndex + 1; i++)
+
+    // convert to binary
+    for (int i = 0; i < lastTermIndex + 1; i++)
     {
         for (int j = 0; j < 2 * numOfLiterals[i]; j++) // maximum iteration is applied when all lit are negated
         {
             if ((terms[i][j] == 'a' || terms[i][j] == 'A') && terms[i][j + 1] != '\'')
-            {
-                termsValue[i][0] = 1;
-            }
+                termsBinaryValue[i][0] = 1;
             else if ((terms[i][j] == 'a' || terms[i][j] == 'A') && terms[i][j + 1] == '\'')
             {
-                termsValue[i][0] = 0;
+                termsBinaryValue[i][0] = 0;
                 j++;
             }
             else if ((terms[i][j] == 'b' || terms[i][j] == 'B') && terms[i][j + 1] != '\'')
-                termsValue[i][1] = 1;
+                termsBinaryValue[i][1] = 1;
             else if ((terms[i][j] == 'b' || terms[i][j] == 'B') && terms[i][j + 1] == '\'')
             {
-                termsValue[i][1] = 0;
+                termsBinaryValue[i][1] = 0;
                 j++;
             }
             else if ((terms[i][j] == 'c' || terms[i][j] == 'C') && terms[i][j + 1] != '\'')
-                termsValue[i][2] = 1;
+                termsBinaryValue[i][2] = 1;
             else if ((terms[i][j] == 'c' || terms[i][j] == 'C') && terms[i][j + 1] == '\'')
             {
-                termsValue[i][2] = 0;
+                termsBinaryValue[i][2] = 0;
                 j++;
             }
             else if ((terms[i][j] == 'd' || terms[i][j] == 'D') && terms[i][j + 1] != '\'')
-                termsValue[i][3] = 1;
+                termsBinaryValue[i][3] = 1;
             else if ((terms[i][j] == 'd' || terms[i][j] == 'D') && terms[i][j + 1] == '\'')
             {
-                termsValue[i][3] = 0;
+                termsBinaryValue[i][3] = 0;
                 j++;
             }
         }
     }
 
     // Generate values from terms
-    // int net1[2][1] = {{0}, {1}};
-    // int net2[4][2] = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
-    int net3[16][4] = {{0, 0, 0, 0},
-                       {1, 0, 0, 0},
-                       {0, 1, 0, 0},
-                       {1, 1, 0, 0},
-                       {0, 0, 1, 0},
-                       {1, 0, 1, 0},
-                       {0, 1, 1, 0},
-                       {1, 1, 1, 0},
-                       {0, 0, 0, 1},
-                       {1, 0, 0, 1},
-                       {0, 1, 0, 1},
-                       {1, 1, 0, 1},
-                       {0, 0, 1, 1},
-                       {1, 0, 1, 1},
-                       {0, 1, 1, 1},
-                       {1, 1, 1, 1}};
+    int permutations[8][3] = {{0, 0, 0},
+                              {1, 0, 0},
+                              {0, 1, 0},
+                              {1, 1, 0},
+                              {0, 0, 1},
+                              {1, 0, 1},
+                              {0, 1, 1},
+                              {1, 1, 1}};
     int finalValues[16] = {};
-    int flag;
-    for (int i = 0; i < termsIndex; i++)
+
+    // looping through the entered terms to ...
+    for (int i = 0; i < lastTermIndex; i++)
     {
         flag = 0;
         int weights[4] = {8, 4, 2, 1};
+
+        // modify the masking weights
         for (int k = 0; k < 4; k++)
         {
-            if (termsValue[i][k] == 1)
+            if (termsBinaryValue[i][k] == 1)
             {
-                flag += termsValue[i][k] * weights[k];
-                weights[k] = 0;
+                flag += termsBinaryValue[i][k] * weights[k]; // store the sum of the constant literal weights
+                weights[k] = 0;                              // then eleminate the corresponding weight not to calculate it multiple times
             }
-            else if (termsValue[i][k] == 0)
+            else if (termsBinaryValue[i][k] == 0)
                 weights[k] = 0;
         }
+
+        // Looping through the absent literals permutations
         for (int j = 0; j < pow(2, 4 - numOfLiterals[i]); j++)
         {
-            int temp = 0;
-            int lastUnknownIndex = 0;
+            int temp = 0;             // store the sum of the variable literals for each different permutation
+            int lastUnknownIndex = 0; // index to focus on from where to get the next value of the permutation (the permutations were rearranged to be valid for different cases (i.e., one absent literal, two or three))
             for (int l = 0; l < 4; l++)
             {
-                if (termsValue[i][l] == -1)
+                if (termsBinaryValue[i][l] == -1)
                 {
-                    temp -= termsValue[i][l] * weights[l] * net3[j][lastUnknownIndex];
+                    temp -= termsBinaryValue[i][l] * weights[l] * permutations[j][lastUnknownIndex];
                     lastUnknownIndex++;
                 }
             }
@@ -136,35 +134,24 @@ int main()
         }
     }
 
-    // arrange the terms
-    int map[4][4] = { {0, 1, 3, 2},
-                      {4, 5, 7, 6},
-                      {12, 13, 15, 14},
-                      {8, 9, 11, 10}};
+    // rearrange the terms in the kMap
+    int map[4][4] = {{0, 1, 3, 2},
+                     {4, 5, 7, 6},
+                     {12, 13, 15, 14},
+                     {8, 9, 11, 10}};
     int kMap[4][4] = {0};
     for (int i = 0; i < 4; i++)
     {
-        for(int j = 0;j<4;j++)
+        for (int j = 0; j < 4; j++)
         {
             kMap[i][j] = finalValues[map[i][j]];
         }
     }
 
-    // for (int i = 0; i < termsIndex; i++)
-    // {
-    //     for (int j = 0; j < 4; j++)
-    //         cout << termsValue[i][j] << ",";
-    //     cout << endl;
-    // }
-    // for (int i = 0; i < 16; i++)
-    // {
-    //     // if(!(i%3))   cout << endl;
-    //     cout << finalValues[i] << ",";
-    // }
     cout << endl;
     for (int i = 0; i < 4; i++)
     {
-        for(int j = 0;j<4;j++)
+        for (int j = 0; j < 4; j++)
         {
             cout << kMap[i][j] << ", ";
         }
