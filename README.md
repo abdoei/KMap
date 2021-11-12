@@ -1,0 +1,2 @@
+# KMap
+Karnaugh Map solver
