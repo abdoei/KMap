@@ -21,12 +21,12 @@ int main()
         for (int j = 0; !(arr[i] == '+' || arr[i] == '\0'); j++)
         {
             terms[lastTermIndex][j] = arr[i];
-            i++; // bypass the + sign
-            if ((arr[i] != '+' || arr[i] != '\'' || arr[i] != 'a' || arr[i] != 'b' || arr[i] != 'c' || arr[i] != 'd' || arr[i] != 'A' || arr[i] != 'B' || arr[i] != 'C' || arr[i] != 'D'))
+            if (!(arr[i] == '+' || arr[i] == '\'' || arr[i] == 'a' || arr[i] == 'b' || arr[i] == 'c' || arr[i] == 'd' || arr[i] == 'A' || arr[i] == 'B' || arr[i] == 'C' || arr[i] == 'D'))
             {
                 cout << "Wrong input" << endl;
-                return -1;
+                return 1;
             }
+            i++; // bypass the + sign
         }
     }
 
